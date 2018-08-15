@@ -25,6 +25,9 @@ public:
 
 private:	
 	string word_;	
+    string UpCase(const string wrd) const;
+    string RemovePunct(const string wrd) const;
+
 };
 
 #endif

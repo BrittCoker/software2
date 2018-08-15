@@ -7,33 +7,43 @@
 #include <string>
 #include <vector>
 
+const auto PUNCTUATION = "~`!@#$%^&*()-_+={}[]\\|:;'<>?,./\""s;
+
 Word::Word(const string& word): word_{word}
 {
+    std::size_t pos; 
+	pos = word_.find(" ");
+	if (pos!=std::string::npos) throw WordContainsSpace();
+
 	// throws an exception (in the form of WordContainsNoLetters object)
 	// indicating that the word being constructed contains no letters
-	if (word_.empty()) throw WordContainsNoLetters{};
+	if (word_.empty()|| (RemovePunct(word_).empty())) throw WordContainsNoLetters{};
 	// Note, we will cover exceptions in more detail later on in the course.
     
+    //RemovePunct(word_);
     auto containsSpaces = false;
     auto testSpaces = ""s;
     char spaceChar;
     
-    for (int i = 0; i < word_.length(); i++)
+    
+    //check if the word contains spaces
+    for (auto i = 0; i < word_.length(); i++)
     {
         spaceChar = word_[i];
         testSpaces += spaceChar;
     }
     
-    for (int i = 0; i < testSpaces.length(); i++)
+    for (auto i = 0; i < testSpaces.length(); i++)
     {
         if (testSpaces[i] == ' ')
             containsSpaces = true;
     }
     
+    //check if the word contains letters
     auto checkAlpha = ""s;
     char ch;
     
-    for (int i = 0; i < word_.length(); i++)
+    for (auto i = 0; i < word_.length(); i++)
     {
         if(isalpha(word_[i]))
         {
@@ -51,66 +61,12 @@ Word::Word(const string& word): word_{word}
 // overloads the equivalence operator which allows to Words to be compared using ==
 bool Word::operator==(const Word& rhs) const
 {
-    bool isSame = true;
     
-	if (word_ == rhs.word_)
+    if (RemovePunct(UpCase(word_)) == RemovePunct(UpCase(rhs.word_)))
 		return true;
-	else if (word_.length() == rhs.word_.length())
-    {
-        for (int i = 0; i < word_.length(); i++)
-        {
-            if ( tolower(word_[i]) == tolower(rhs.word_[i]))
-            {
-                isSame = true;
-            }
-            else 
-            {
-                return false;
-            }
-        }
-    }
-        else
-        {
-            auto word1 = ""s;
-            char ch1;
-            
-            auto word2 =""s;
-            
-            for (int i = 0; i < word_.length(); i++)
-            {
-                if(isalpha(word_[i]))
-                {
-                    ch1 = word_[1];
-                    word1 += tolower(ch1);
-                }
-            }
-            
-            char ch2;
-            for (int i =0; i < rhs.word_.length(); i++)
-            {
-                if(isalpha(rhs.word_[i]))
-                {
-                    ch2 = rhs.word_[1];
-                    word2 += tolower(ch2);
-                }
-            }
-            
-            if (word1 == word2)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-    
-    if (isSame)
-       {
-            return true;
-       }
-        
-    return false;
+	else
+		return false;
+
 }
 
 bool Word::isQueryable() const
@@ -123,5 +79,33 @@ bool Word::isQueryable() const
     {
         return false;
     }
-	return false;
+
+}
+
+
+//Helper Method: Converts string to uppercase
+string Word::UpCase(const string wrd) const
+{
+    string temp = wrd;
+    
+    for (int i = 0; i < temp.length(); i++)
+    {
+        temp.at(i) = toupper(temp.at(i));
+    }
+    return temp;
+}
+
+//Helper Method: Removes punctuation
+string Word::RemovePunct(const string wrd) const
+{
+    string temp = "";
+    
+    for (int i = 0; i < wrd.length(); i++)
+    {
+        if (!ispunct(wrd[i])) 
+        {
+            temp  += wrd[i];
+        }
+    }
+    return temp;
 }
